@@ -15,6 +15,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -3151,4 +3152,82 @@ func ThemeColor(baseColor string, tint float64) string {
 	}
 	br, bg, bb := HSLToRGB(h, s, l)
 	return fmt.Sprintf("FF%02X%02X%02X", br, bg, bb)
+}
+
+func (f *File) GetStyleById(id int) (*Style, error) {
+	if f.Styles.CellXfs.Count >= id {
+		return nil, errors.New("Style not found")
+	}
+
+	style := f.Styles.CellXfs.Xf[id]
+	result := Style{}
+
+	result.Alignment = &Alignment{
+		Horizontal:      style.Alignment.Horizontal,
+		Indent:          style.Alignment.Indent,
+		JustifyLastLine: style.Alignment.JustifyLastLine,
+		ReadingOrder:    style.Alignment.ReadingOrder,
+		RelativeIndent:  style.Alignment.RelativeIndent,
+		ShrinkToFit:     style.Alignment.WrapText,
+		TextRotation:    style.Alignment.TextRotation,
+		Vertical:        style.Alignment.Vertical,
+		WrapText:        style.Alignment.WrapText,
+	}
+
+	borders := make([]Border, 4)
+	border := f.Styles.Borders.Border[*style.BorderID]
+	borders = append(borders, Border{
+		Type:  "left",
+		Color: border.Left.Color.RGB,
+	})
+	borders = append(borders, Border{
+		Type:  "right",
+		Color: border.Right.Color.RGB,
+	})
+	borders = append(borders, Border{
+		Type:  "top",
+		Color: border.Top.Color.RGB,
+	})
+	borders = append(borders, Border{
+		Type:  "bottom",
+		Color: border.Bottom.Color.RGB,
+	})
+	result.Border = borders
+
+	fill := f.Styles.Fills.Fill[*style.FillID]
+
+	if fill.GradientFill == nil {
+		color := []string{fill.PatternFill.FgColor.RGB}
+		// is pattern fill
+		result.Fill = Fill{
+			Type:    "pattern",
+			Pattern: 1,
+			Color:   color,
+		}
+	} else {
+		colors := make([]string, 0)
+		for i := 0; i < len(fill.GradientFill.Stop); i++ {
+			colors = append(colors, fill.GradientFill.Stop[i].Color.RGB)
+		}
+		result.Fill = Fill{
+			Type:    "gradient",
+			Shading: 1,
+			Color:   colors,
+		}
+	}
+
+	font := f.Styles.Fonts.Font[*style.FontID]
+	result.Font = &Font{
+		Bold:      *font.B.Val,
+		Italic:    *font.I.Val,
+		Underline: *font.U.Val,
+		Family:    *font.Name.Val,
+		Size:      *font.Sz.Val,
+		Strike:    *font.Strike.Val,
+		Color:     font.Color.RGB,
+	}
+
+	result.NumFmt = f.Styles.NumFmts.NumFmt[*style.NumFmtID].NumFmtID
+
+	return &result, nil
 }
