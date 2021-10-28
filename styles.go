@@ -3155,7 +3155,7 @@ func ThemeColor(baseColor string, tint float64) string {
 }
 
 func (f *File) GetStyleById(id int) (*Style, error) {
-	if f.Styles.CellXfs.Count >= id {
+	if f.Styles.CellXfs.Count <= id {
 		return nil, errors.New("Style not found")
 	}
 
@@ -3174,37 +3174,39 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 		WrapText:        style.Alignment.WrapText,
 	}
 
-	borders := make([]Border, 4)
-	border := f.Styles.Borders.Border[*style.BorderID]
-	borders = append(borders, Border{
-		Type:  "left",
-		Color: border.Left.Color.RGB,
-	})
-	borders = append(borders, Border{
-		Type:  "right",
-		Color: border.Right.Color.RGB,
-	})
-	borders = append(borders, Border{
-		Type:  "top",
-		Color: border.Top.Color.RGB,
-	})
-	borders = append(borders, Border{
-		Type:  "bottom",
-		Color: border.Bottom.Color.RGB,
-	})
-	result.Border = borders
+	borders := make([]Border, 0)
+	if f.Styles.Borders.Count > *style.BorderID {
+		border := f.Styles.Borders.Border[*style.BorderID]
+		if border.Left.Color != nil {
+			borders = append(borders, Border{
+				Type:  "left",
+				Color: border.Left.Color.RGB,
+			})
+		}
+		if border.Right.Color != nil {
+			borders = append(borders, Border{
+				Type:  "right",
+				Color: border.Right.Color.RGB,
+			})
+		}
+		if border.Top.Color != nil {
+			borders = append(borders, Border{
+				Type:  "top",
+				Color: border.Top.Color.RGB,
+			})
+		}
+		if border.Bottom.Color != nil {
+			borders = append(borders, Border{
+				Type:  "bottom",
+				Color: border.Bottom.Color.RGB,
+			})
+		}
+		result.Border = borders
+	}
 
 	fill := f.Styles.Fills.Fill[*style.FillID]
 
-	if fill.GradientFill == nil {
-		color := []string{fill.PatternFill.FgColor.RGB}
-		// is pattern fill
-		result.Fill = Fill{
-			Type:    "pattern",
-			Pattern: 1,
-			Color:   color,
-		}
-	} else {
+	if fill.GradientFill != nil {
 		colors := make([]string, 0)
 		for i := 0; i < len(fill.GradientFill.Stop); i++ {
 			colors = append(colors, fill.GradientFill.Stop[i].Color.RGB)
@@ -3214,20 +3216,51 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 			Shading: 1,
 			Color:   colors,
 		}
+	} else if fill.PatternFill != nil {
+		var color []string
+		if fill.PatternFill.FgColor != nil {
+			color = []string{fill.PatternFill.FgColor.RGB}
+		} else if fill.PatternFill.BgColor != nil {
+			color = []string{fill.PatternFill.BgColor.RGB}
+		}
+		// is pattern fill
+		result.Fill = Fill{
+			Type:    "pattern",
+			Pattern: 1,
+			Color:   color,
+		}
 	}
 
 	font := f.Styles.Fonts.Font[*style.FontID]
-	result.Font = &Font{
-		Bold:      *font.B.Val,
-		Italic:    *font.I.Val,
-		Underline: *font.U.Val,
-		Family:    *font.Name.Val,
-		Size:      *font.Sz.Val,
-		Strike:    *font.Strike.Val,
-		Color:     font.Color.RGB,
+	result.Font = &Font{}
+
+	if font.B != nil {
+		result.Font.Bold = *font.B.Val
+	}
+	if font.I != nil {
+		result.Font.Italic = *font.I.Val
+	}
+	if font.U != nil {
+		result.Font.Underline = *font.U.Val
+	}
+	if font.Name != nil {
+		result.Font.Family = *font.Name.Val
+	}
+	if font.Sz != nil {
+		result.Font.Size = *font.Sz.Val
+	}
+	if font.Strike != nil {
+		result.Font.Strike = *font.Strike.Val
+	}
+	if font.Color != nil {
+		result.Font.Color = font.Color.RGB
 	}
 
-	result.NumFmt = f.Styles.NumFmts.NumFmt[*style.NumFmtID].NumFmtID
+	if f.Styles.NumFmts != nil {
+		if f.Styles.NumFmts.Count > *style.NumFmtID {
+			result.NumFmt = f.Styles.NumFmts.NumFmt[*style.NumFmtID].NumFmtID
+		}
+	}
 
 	return &result, nil
 }

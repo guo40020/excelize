@@ -510,7 +510,7 @@ func parseFormatChartSet(formatSet string) (*formatChart, error) {
 //    import (
 //        "fmt"
 //
-//        "github.com/xuri/excelize/v2"
+//        "excelizeServed/excelize"
 //    )
 //
 //    func main() {
@@ -783,7 +783,7 @@ func parseFormatChartSet(formatSet string) (*formatChart, error) {
 //    import (
 //        "fmt"
 //
-//        "github.com/xuri/excelize/v2"
+//        "excelizeServed/excelize"
 //    )
 //
 //    func main() {

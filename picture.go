@@ -54,7 +54,7 @@ func parseFormatPictureSet(formatSet string) (*formatPicture, error) {
 //        _ "image/jpeg"
 //        _ "image/png"
 //
-//        "github.com/xuri/excelize/v2"
+//        "excelizeServed/excelize"
 //    )
 //
 //    func main() {
@@ -138,7 +138,7 @@ func (f *File) AddPicture(sheet, cell, picture, format string) error {
 //        _ "image/jpeg"
 //        "io/ioutil"
 //
-//        "github.com/xuri/excelize/v2"
+//        "excelizeServed/excelize"
 //    )
 //
 //    func main() {
