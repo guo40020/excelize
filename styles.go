@@ -3230,21 +3230,25 @@ func (style *xlsxXf) CellXfToStyle(f *File) (*Style, error) {
 	result.Font = &Font{}
 
 	if font.B != nil {
-		result.Font.Bold = *font.B.Val
+		result.Font.Bold = true
 	}
 	if font.I != nil {
-		result.Font.Italic = *font.I.Val
+		result.Font.Italic = true
 	}
 	if font.U != nil {
-		result.Font.Underline = *font.U.Val
+		if font.U.Val != nil && *font.U.Val == "double" {
+			result.Font.Underline = "double"
+		} else {
+			result.Font.Underline = "single"
+		}
 	}
-	if font.Name != nil {
+	if font.Name != nil && font.Name.Val != nil {
 		result.Font.Family = *font.Name.Val
 	}
-	if font.Sz != nil {
+	if font.Sz != nil && font.Sz.Val != nil {
 		result.Font.Size = *font.Sz.Val
 	}
-	if font.Strike != nil {
+	if font.Strike != nil && font.Strike.Val != nil {
 		result.Font.Strike = *font.Strike.Val
 	}
 	if font.Color != nil {
