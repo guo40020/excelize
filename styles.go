@@ -1074,15 +1074,7 @@ func (f *File) stylesReader() *xlsxStyleSheet {
 		}
 	}
 
-	f.Styles.generateHashCode()
-
 	return f.Styles
-}
-
-func (s *xlsxStyleSheet) generateHashCode() {
-	for _, xf := range s.CellXfs.Xf {
-		xf.hashCode = string(hashing("SHA1", []byte(fmt.Sprintf("%v", xf))))
-	}
 }
 
 // styleSheetWriter provides a function to save xl/styles.xml after serialize
@@ -3162,12 +3154,7 @@ func ThemeColor(baseColor string, tint float64) string {
 	return fmt.Sprintf("FF%02X%02X%02X", br, bg, bb)
 }
 
-func (f *File) GetStyleById(id int) (*Style, error) {
-	if f.Styles.CellXfs.Count <= id {
-		return nil, errors.New("Style not found")
-	}
-
-	style := f.Styles.CellXfs.Xf[id]
+func (style *xlsxXf) CellXfToStyle(f *File) (*Style, error) {
 	result := Style{}
 
 	result.Alignment = &Alignment{
@@ -3271,4 +3258,18 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 	}
 
 	return &result, nil
+}
+
+func (f *File) GetStyleById(id int) (*Style, error) {
+	if f.Styles.CellXfs.Count <= id {
+		return nil, errors.New("Style not found")
+	}
+
+	result, err := f.Styles.CellXfs.Xf[id].CellXfToStyle(f)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

@@ -208,7 +208,6 @@ type xlsxCellStyleXfs struct {
 // xlsxXf directly maps the xf element. A single xf element describes all of the
 // formatting for a cell.
 type xlsxXf struct {
-	hashCode          string
 	NumFmtID          *int            `xml:"numFmtId,attr"`
 	FontID            *int            `xml:"fontId,attr"`
 	FillID            *int            `xml:"fillId,attr"`
