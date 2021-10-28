@@ -642,7 +642,7 @@ func TestSetCellStyleBorder(t *testing.T) {
 				Style: 13,
 			},
 		},
-		Fill: Fill{
+		Fill: &Fill{
 			Type:    "pattern",
 			Color:   []string{"#E0EBF5"},
 			Pattern: 1,

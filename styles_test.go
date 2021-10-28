@@ -295,7 +295,7 @@ func TestGetStyleID(t *testing.T) {
 }
 
 func TestGetFillID(t *testing.T) {
-	assert.Equal(t, -1, getFillID(NewFile().stylesReader(), &Style{Fill: Fill{Type: "unknown"}}))
+	assert.Equal(t, -1, getFillID(NewFile().stylesReader(), &Style{Fill: &Fill{Type: "unknown"}}))
 }
 
 func TestParseTime(t *testing.T) {

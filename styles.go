@@ -1074,7 +1074,15 @@ func (f *File) stylesReader() *xlsxStyleSheet {
 		}
 	}
 
+	f.Styles.generateHashCode()
+
 	return f.Styles
+}
+
+func (s *xlsxStyleSheet) generateHashCode() {
+	for _, xf := range s.CellXfs.Xf {
+		xf.hashCode = string(hashing("SHA1", []byte(fmt.Sprintf("%v", xf))))
+	}
 }
 
 // styleSheetWriter provides a function to save xl/styles.xml after serialize
@@ -3211,7 +3219,7 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 		for i := 0; i < len(fill.GradientFill.Stop); i++ {
 			colors = append(colors, fill.GradientFill.Stop[i].Color.RGB)
 		}
-		result.Fill = Fill{
+		result.Fill = &Fill{
 			Type:    "gradient",
 			Shading: 1,
 			Color:   colors,
@@ -3224,7 +3232,7 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 			color = []string{fill.PatternFill.BgColor.RGB}
 		}
 		// is pattern fill
-		result.Fill = Fill{
+		result.Fill = &Fill{
 			Type:    "pattern",
 			Pattern: 1,
 			Color:   color,

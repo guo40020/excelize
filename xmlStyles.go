@@ -208,6 +208,7 @@ type xlsxCellStyleXfs struct {
 // xlsxXf directly maps the xf element. A single xf element describes all of the
 // formatting for a cell.
 type xlsxXf struct {
+	hashCode          string
 	NumFmtID          *int            `xml:"numFmtId,attr"`
 	FontID            *int            `xml:"fontId,attr"`
 	FillID            *int            `xml:"fillId,attr"`
@@ -360,7 +361,7 @@ type Protection struct {
 // Style directly maps the style settings of the cells.
 type Style struct {
 	Border        []Border    `json:"border"`
-	Fill          Fill        `json:"fill"`
+	Fill          *Fill       `json:"fill"`
 	Font          *Font       `json:"font"`
 	Alignment     *Alignment  `json:"alignment"`
 	Protection    *Protection `json:"protection"`
