@@ -2353,7 +2353,7 @@ func setLangNumFmt(styleSheet *xlsxStyleSheet, style *Style) int {
 // exist, will return -1.
 func getFillID(styleSheet *xlsxStyleSheet, style *Style) (fillID int) {
 	fillID = -1
-	if styleSheet.Fills == nil || style.Fill.Type == "" {
+	if styleSheet.Fills == nil || style.Fill == nil || style.Fill.Type == "" {
 		return
 	}
 	fills := newFills(style, true)
@@ -3157,16 +3157,18 @@ func ThemeColor(baseColor string, tint float64) string {
 func (style *xlsxXf) CellXfToStyle(f *File) (*Style, error) {
 	result := Style{}
 
-	result.Alignment = &Alignment{
-		Horizontal:      style.Alignment.Horizontal,
-		Indent:          style.Alignment.Indent,
-		JustifyLastLine: style.Alignment.JustifyLastLine,
-		ReadingOrder:    style.Alignment.ReadingOrder,
-		RelativeIndent:  style.Alignment.RelativeIndent,
-		ShrinkToFit:     style.Alignment.WrapText,
-		TextRotation:    style.Alignment.TextRotation,
-		Vertical:        style.Alignment.Vertical,
-		WrapText:        style.Alignment.WrapText,
+	if style.Alignment != nil {
+		result.Alignment = &Alignment{
+			Horizontal:      style.Alignment.Horizontal,
+			Indent:          style.Alignment.Indent,
+			JustifyLastLine: style.Alignment.JustifyLastLine,
+			ReadingOrder:    style.Alignment.ReadingOrder,
+			RelativeIndent:  style.Alignment.RelativeIndent,
+			ShrinkToFit:     style.Alignment.WrapText,
+			TextRotation:    style.Alignment.TextRotation,
+			Vertical:        style.Alignment.Vertical,
+			WrapText:        style.Alignment.WrapText,
+		}
 	}
 
 	borders := make([]Border, 0)
