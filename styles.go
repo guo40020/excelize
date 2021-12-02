@@ -3172,7 +3172,7 @@ func (style *xlsxXf) CellXfToStyle(f *File) (*Style, error) {
 	}
 
 	borders := make([]Border, 0)
-	if f.Styles.Borders != nil && f.Styles.Borders.Count > *style.BorderID {
+	if f.Styles.Borders != nil && style.BorderID != nil && f.Styles.Borders.Count > *style.BorderID {
 		border := f.Styles.Borders.Border[*style.BorderID]
 		if border.Left.Color != nil {
 			borders = append(borders, Border{
