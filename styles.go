@@ -3279,3 +3279,15 @@ func (f *File) GetStyleById(id int) (*Style, error) {
 
 	return result, nil
 }
+
+func (f *File) GetAllStyles() ([]*Style, error) {
+	result := make([]*Style, f.Styles.CellXfs.Count)
+	for i, v := range f.Styles.CellXfs.Xf {
+		r, err := v.CellXfToStyle(f)
+		if err != nil {
+			return nil, err
+		}
+		result[i] = r
+	}
+	return result, nil
+}
