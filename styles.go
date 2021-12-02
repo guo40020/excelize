@@ -3201,60 +3201,63 @@ func (style *xlsxXf) CellXfToStyle(f *File) (*Style, error) {
 		result.Border = borders
 	}
 
-	fill := f.Styles.Fills.Fill[*style.FillID]
+	if style.FillID != nil {
+		fill := f.Styles.Fills.Fill[*style.FillID]
+		if fill.GradientFill != nil {
+			colors := make([]string, 0)
+			for i := 0; i < len(fill.GradientFill.Stop); i++ {
+				colors = append(colors, fill.GradientFill.Stop[i].Color.RGB)
+			}
+			result.Fill = &Fill{
+				Type:    "gradient",
+				Shading: 1,
+				Color:   colors,
+			}
+		} else if fill.PatternFill != nil {
+			var color []string
+			if fill.PatternFill.FgColor != nil {
+				color = []string{fill.PatternFill.FgColor.RGB}
+			} else if fill.PatternFill.BgColor != nil {
+				color = []string{fill.PatternFill.BgColor.RGB}
+			}
+			// is pattern fill
+			result.Fill = &Fill{
+				Type:    "pattern",
+				Pattern: 1,
+				Color:   color,
+			}
+		}
+	}
 
-	if fill.GradientFill != nil {
-		colors := make([]string, 0)
-		for i := 0; i < len(fill.GradientFill.Stop); i++ {
-			colors = append(colors, fill.GradientFill.Stop[i].Color.RGB)
-		}
-		result.Fill = &Fill{
-			Type:    "gradient",
-			Shading: 1,
-			Color:   colors,
-		}
-	} else if fill.PatternFill != nil {
-		var color []string
-		if fill.PatternFill.FgColor != nil {
-			color = []string{fill.PatternFill.FgColor.RGB}
-		} else if fill.PatternFill.BgColor != nil {
-			color = []string{fill.PatternFill.BgColor.RGB}
-		}
-		// is pattern fill
-		result.Fill = &Fill{
-			Type:    "pattern",
-			Pattern: 1,
-			Color:   color,
-		}
-	}
+	if style.FontID != nil {
+		font := f.Styles.Fonts.Font[*style.FontID]
+		result.Font = &Font{}
 
-	font := f.Styles.Fonts.Font[*style.FontID]
-	result.Font = &Font{}
-
-	if font.B != nil {
-		result.Font.Bold = true
-	}
-	if font.I != nil {
-		result.Font.Italic = true
-	}
-	if font.U != nil {
-		if font.U.Val != nil && *font.U.Val == "double" {
-			result.Font.Underline = "double"
-		} else {
-			result.Font.Underline = "single"
+		if font.B != nil {
+			result.Font.Bold = true
 		}
-	}
-	if font.Name != nil && font.Name.Val != nil {
-		result.Font.Family = *font.Name.Val
-	}
-	if font.Sz != nil && font.Sz.Val != nil {
-		result.Font.Size = *font.Sz.Val
-	}
-	if font.Strike != nil && font.Strike.Val != nil {
-		result.Font.Strike = *font.Strike.Val
-	}
-	if font.Color != nil {
-		result.Font.Color = font.Color.RGB
+		if font.I != nil {
+			result.Font.Italic = true
+		}
+		if font.U != nil {
+			if font.U.Val != nil && *font.U.Val == "double" {
+				result.Font.Underline = "double"
+			} else {
+				result.Font.Underline = "single"
+			}
+		}
+		if font.Name != nil && font.Name.Val != nil {
+			result.Font.Family = *font.Name.Val
+		}
+		if font.Sz != nil && font.Sz.Val != nil {
+			result.Font.Size = *font.Sz.Val
+		}
+		if font.Strike != nil && font.Strike.Val != nil {
+			result.Font.Strike = *font.Strike.Val
+		}
+		if font.Color != nil {
+			result.Font.Color = font.Color.RGB
+		}
 	}
 
 	if f.Styles.NumFmts != nil {
